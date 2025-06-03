@@ -6,7 +6,7 @@ class Platformer extends Phaser.Scene {
     init() {
         this.ACCELERATION      = 150;
         this.DRAG              = 5000;
-        this.physics.world.gravity.y = 2000 ;
+        this.physics.world.gravity.y = 2000;
         this.JUMP_VELOCITY     = -500;
         this.PARTICLE_VELOCITY = 10;
         this.SCALE             = 5;
@@ -23,13 +23,13 @@ class Platformer extends Phaser.Scene {
         // 2) COINS
         this.coinGroup = this.physics.add.staticGroup();
         const coinObjects = this.map.getObjectLayer("Objects").objects
-            .filter(obj => obj.name === "coin" && obj.gid);
+            .filter(o => o.name === "coin" && o.gid);
         const firstGid = this.map.tilesets[0].firstgid;
-        coinObjects.forEach(obj => {
-            const frameIndex = obj.gid - firstGid;
+        coinObjects.forEach(o => {
+            const frameIndex = o.gid - firstGid;
             const coin = this.coinGroup.create(
-                obj.x + TILE_W / 2,
-                obj.y,
+                o.x + TILE_W / 2,
+                o.y,
                 "tilemap_sheet",
                 frameIndex
             );
@@ -90,11 +90,44 @@ class Platformer extends Phaser.Scene {
             .setOrigin(0.5, 1);
         });
 
-        // EndScene
+        // EndScene overlap
+        const p = this.my.sprite.player;
         this.physics.add.overlap(
-            this.my.sprite.player,
+            p,
             this.exitGroup,
             () => this.scene.start("endScene")
+        );
+
+        // ENEMY BEES
+        this.beeGroup = this.physics.add.group({
+            allowGravity: false,
+            collideWorldBounds: true,
+            bounceX: 1
+        });
+
+        // Determine a vertical range for random bee spawn 
+        const minY = TILE_H * 4;
+        const maxY = spawn.y - TILE_H * 2;
+
+        // Spawn bees at random x-positions and random y within range
+        for (let i = 0; i < 5; i++) {
+            const bx = Phaser.Math.Between(TILE_W, this.map.widthInPixels - TILE_W);
+            const by = Phaser.Math.Between(minY, maxY);
+            const bee = this.beeGroup.create(bx, by, 'platformer_characters', 'tile_0024.png')
+                .setOrigin(0.5, 1)
+                .setScale(0.5)
+                .play('beeFly');
+            bee.body.setVelocityX(Phaser.Math.Between(50, 100));
+        }
+
+        // Collide bees with groundLayer 
+        this.physics.add.collider(this.beeGroup, this.groundLayer);
+
+        // Overlap player with bees restart
+        this.physics.add.overlap(
+            p,
+            this.beeGroup,
+            () => this.scene.restart()
         );
 
         // 7) CAMERA
