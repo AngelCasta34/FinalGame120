@@ -1,0 +1,41 @@
+{
+    "activeFile": "platformer-level-1.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "": {
+            "scaleInEditor": 4
+        },
+        "platformer-level-1.tmx": {
+            "scale": 4,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 32.75,
+                "y": 14.25
+            }
+        },
+        "platformer-level-1.tmx#kenny_tilemap_packed": {
+            "scaleInDock": 3,
+            "scaleInEditor": 4
+        }
+    },
+    "last.exportedFilePath": "C:/Users/casta/Documents/120/PlatformerImplementation/assets",
+    "last.imagePath": "C:/Users/casta/Documents/120/PlatformerImplementation/assets",
+    "map.lastUsedExportFilter": "All Files (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.width": 45,
+    "openFiles": [
+        "platformer-level-1.tmx"
+    ],
+    "project": "platformer-level-1.tiled-project",
+    "property.type": "bool",
+    "recentFiles": [
+        "platformer-level-1.tmx"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 9,
+        "width": 9
+    }
+}
