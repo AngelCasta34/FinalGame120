@@ -1,3 +1,4 @@
+// src/Scenes/Platformer.js
 class Platformer extends Phaser.Scene {
     constructor() {
         super("platformerScene");
@@ -6,17 +7,13 @@ class Platformer extends Phaser.Scene {
     init() {
         this.ACCELERATION      = 150;
         this.DRAG              = 5000;
-        this.physics.world.gravity.y = 2000;
+        this.physics.world.gravity.y = 150;
         this.JUMP_VELOCITY     = -500;
         this.PARTICLE_VELOCITY = 10;
         this.SCALE             = 5;
     }
 
     create() {
-        // Background Music 
-        this.bgm = this.sound.add("bgm", { volume: 0.25, loop: true });
-        this.bgm.play();
-
         // 1) TILEMAP + GROUND
         const TILE_W = 9, TILE_H = 9;
         this.map = this.add.tilemap("platformer-level-1", TILE_W, TILE_H, 45, 25);
@@ -24,11 +21,16 @@ class Platformer extends Phaser.Scene {
         this.groundLayer = this.map.createLayer("Ground-n-Platforms", this.tileset, 0, 0);
         this.groundLayer.setCollisionByProperty({ collides: true });
 
-        // 2) COINS
+        // 2) COINS (Keys)
         this.coinGroup = this.physics.add.staticGroup();
         const coinObjects = this.map.getObjectLayer("Objects").objects
             .filter(o => o.name === "coin" && o.gid);
         const firstGid = this.map.tilesets[0].firstgid;
+
+        // Track total number of keys and how many collected
+        this.totalKeys = coinObjects.length;
+        this.keyCount = 0;
+
         coinObjects.forEach(o => {
             const frameIndex = o.gid - firstGid;
             const coin = this.coinGroup.create(
@@ -57,6 +59,7 @@ class Platformer extends Phaser.Scene {
             (player, coin) => {
                 coin.destroy();
                 this.sound.play("sfx-coin");
+                this.keyCount++;
             }
         );
 
@@ -79,7 +82,7 @@ class Platformer extends Phaser.Scene {
             alpha:    { start: 1, end: 0.1 },
         }).stop();
 
-        // 6) EXIT OBJECTS (using real GID)
+        // 6) EXIT OBJECTS 
         this.exitGroup = this.physics.add.staticGroup();
         const exitObjects = this.map.getObjectLayer("Objects").objects
             .filter(o => o.name === "Exit" && o.gid);
@@ -94,12 +97,16 @@ class Platformer extends Phaser.Scene {
             .setOrigin(0.5, 1);
         });
 
-        // EndScene overlap
+        // Only allow exit overlap if all keys collected
         const p = this.my.sprite.player;
         this.physics.add.overlap(
             p,
             this.exitGroup,
-            () => this.scene.start("endScene")
+            () => {
+                if (this.keyCount >= this.totalKeys) {
+                    this.scene.start("endScene");
+                }
+            }
         );
 
         // ENEMY BEES
@@ -109,19 +116,18 @@ class Platformer extends Phaser.Scene {
             bounceX: 1
         });
 
-        // Determine a vertical range for random bee spawn (above ground but below ceiling)
+        // Determine a vertical range for random bee spawn 
         const minY = TILE_H * 4;
         const maxY = spawn.y - TILE_H * 2;
 
         // Spawn up to 5 bees at random x-positions and random y within range
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 1; i++) {
             const bx = Phaser.Math.Between(TILE_W, this.map.widthInPixels - TILE_W);
             const by = Phaser.Math.Between(minY, maxY);
             const bee = this.beeGroup.create(bx, by, 'platformer_characters', 'tile_0024.png')
                 .setOrigin(0.5, 1)
                 .setScale(0.5)
                 .play('beeFly');
-            // Slow them down: choose a lower velocity
             bee.body.setVelocityX(Phaser.Math.Between(20, 40));
         }
 
