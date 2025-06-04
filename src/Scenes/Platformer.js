@@ -13,6 +13,10 @@ class Platformer extends Phaser.Scene {
     }
 
     create() {
+        // Background Music 
+        this.bgm = this.sound.add("bgm", { volume: 0.25, loop: true });
+        this.bgm.play();
+
         // 1) TILEMAP + GROUND
         const TILE_W = 9, TILE_H = 9;
         this.map = this.add.tilemap("platformer-level-1", TILE_W, TILE_H, 45, 25);
@@ -105,11 +109,11 @@ class Platformer extends Phaser.Scene {
             bounceX: 1
         });
 
-        // Determine a vertical range for random bee spawn 
+        // Determine a vertical range for random bee spawn (above ground but below ceiling)
         const minY = TILE_H * 4;
         const maxY = spawn.y - TILE_H * 2;
 
-        // Spawn bees at random x-positions and random y within range
+        // Spawn up to 5 bees at random x-positions and random y within range
         for (let i = 0; i < 5; i++) {
             const bx = Phaser.Math.Between(TILE_W, this.map.widthInPixels - TILE_W);
             const by = Phaser.Math.Between(minY, maxY);
@@ -117,10 +121,11 @@ class Platformer extends Phaser.Scene {
                 .setOrigin(0.5, 1)
                 .setScale(0.5)
                 .play('beeFly');
-            bee.body.setVelocityX(Phaser.Math.Between(50, 100));
+            // Slow them down: choose a lower velocity
+            bee.body.setVelocityX(Phaser.Math.Between(20, 40));
         }
 
-        // Collide bees with groundLayer 
+        // Collide bees with groundLayer so they remain at chosen y
         this.physics.add.collider(this.beeGroup, this.groundLayer);
 
         // Overlap player with bees restart
