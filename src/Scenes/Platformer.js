@@ -1,4 +1,3 @@
-// src/Scenes/Platformer.js
 class Platformer extends Phaser.Scene {
     constructor() {
         super("platformerScene");
