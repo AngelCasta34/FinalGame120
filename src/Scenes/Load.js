@@ -10,8 +10,8 @@ class Load extends Phaser.Scene {
         this.load.atlas("platformer_characters", "tilemap-characters-packed.png", "tilemap-characters-packed.json");
 
         // Load tilemap information
-        this.load.image("tilemap_tiles", "tilemap_packed.png");                         
-        this.load.tilemapTiledJSON("platformer-level-1", "platformer-level-1.tmj");      
+        this.load.image("tilemap_tiles", "tilemap_packed.png");                        
+        this.load.tilemapTiledJSON("platformer-level-1", "platformer-level-1.tmj");     
 
         // Load the tilemap as a spritesheet
         this.load.spritesheet("tilemap_sheet", "tilemap_packed.png", {
@@ -76,6 +76,7 @@ class Load extends Phaser.Scene {
         this.scene.start("platformerScene");
     }
 
+    // Never get here since a new scene is started in create()
     update() {}
 }
 
