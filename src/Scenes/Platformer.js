@@ -4,7 +4,7 @@ class Platformer extends Phaser.Scene {
     }
 
     init() {
-        this.ACCELERATION      = 150;
+        this.ACCELERATION      = 100;
         this.DRAG              = 5000;
         this.physics.world.gravity.y = 150;
         this.JUMP_VELOCITY     = -150;
@@ -27,24 +27,24 @@ class Platformer extends Phaser.Scene {
         this.groundLayer.setCollisionByProperty({ collides: true });
 
         // 2) Keys
-        this.coinGroup = this.physics.add.staticGroup();
-        const coinObjects = this.map.getObjectLayer("Objects").objects
-            .filter(o => o.name === "coin" && o.gid);
+        this.keyGroup = this.physics.add.staticGroup();
+        const keyObjects = this.map.getObjectLayer("Objects").objects
+            .filter(o => o.name === "key" && o.gid);
         const firstGid = this.map.tilesets[0].firstgid;
 
         // Track total number of keys and how many collected
-        this.totalKeys = coinObjects.length;
+        this.totalKeys = keyObjects.length;
         this.keyCount  = 0;
 
-        coinObjects.forEach(o => {
+        keyObjects.forEach(o => {
             const frameIndex = o.gid - firstGid;
-            const coin = this.coinGroup.create(
+            const key = this.keyGroup.create(
                 o.x + TILE_W / 2,
                 o.y,
                 "tilemap_sheet",
                 frameIndex
             );
-            coin.setOrigin(0.5, 1);
+            key.setOrigin(0.5, 1);
         });
 
         // 3) PLAY BACKGROUND MUSIC
@@ -66,10 +66,10 @@ class Platformer extends Phaser.Scene {
         this.physics.add.collider(this.my.sprite.player, this.groundLayer);
         this.physics.add.overlap(
             this.my.sprite.player,
-            this.coinGroup,
-            (player, coin) => {
-                coin.destroy();
-                this.sound.play("sfx-coin");
+            this.keyGroup,
+            (player, key) => {
+                key.destroy();
+                this.sound.play("sfx-key");
                 this.keyCount++;
             }
         );
@@ -119,7 +119,7 @@ class Platformer extends Phaser.Scene {
                 }
             }
         );
-
+/*
         // 8) ENEMY BEES
         this.beeGroup = this.physics.add.group({
             allowGravity: false,
@@ -139,7 +139,7 @@ class Platformer extends Phaser.Scene {
             this.beeGroup,
             () => this.scene.restart()
         );
-
+*/
         // 9) BULLET GROUP 
         this.bulletGroup = this.physics.add.group({
             allowGravity: false,
@@ -207,7 +207,7 @@ class Platformer extends Phaser.Scene {
             .setDeadzone(50, 50)
             .setZoom(this.SCALE);
     }
-
+/*
     // Spawns a wave of bees at random positions
     spawnBees(TILE_W, TILE_H, spawnY) {
         const minY = TILE_H * 4;
@@ -223,7 +223,7 @@ class Platformer extends Phaser.Scene {
             bee.body.setVelocityX(Phaser.Math.Between(20, 40));
         }
     }
-
+*/
     update() {
         const p   = this.my.sprite.player;
         const vfx = this.my.vfx.walking;
@@ -233,7 +233,7 @@ class Platformer extends Phaser.Scene {
             p.setAccelerationX(-this.ACCELERATION);
             p.resetFlip();
             p.anims.play('walk', true);
-            vfx.startFollow(p, p.displayWidth / 2 - 10, p.displayHeight / 2 - 5);
+            vfx.startFollow(p, (p.displayWidth / 2) - 5, p.displayHeight / 2 - 5);
             vfx.setParticleSpeed(this.PARTICLE_VELOCITY, 0);
             if (p.body.blocked.down) vfx.start();
 
@@ -241,7 +241,7 @@ class Platformer extends Phaser.Scene {
             p.setAccelerationX(this.ACCELERATION);
             p.setFlip(true, false);
             p.anims.play('walk', true);
-            vfx.startFollow(p, -p.displayWidth / 2 + 10, p.displayHeight / 2 - 5);
+            vfx.startFollow(p, (-p.displayWidth / 2) + 5, p.displayHeight / 2 - 5);
             vfx.setParticleSpeed(-this.PARTICLE_VELOCITY, 0);
             if (p.body.blocked.down) vfx.start();
 

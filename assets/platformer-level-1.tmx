@@ -227,6 +227,7 @@
   </tile>
   <tile id="70">
    <properties>
+    <property name="collides" type="bool" value="true"/>
     <property name="hazard" type="bool" value="true"/>
    </properties>
   </tile>
