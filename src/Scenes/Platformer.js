@@ -10,6 +10,12 @@ class Platformer extends Phaser.Scene {
         this.JUMP_VELOCITY     = -500;
         this.PARTICLE_VELOCITY = 10;
         this.SCALE             = 5;
+
+        // Bullet speed (px/s)
+        this.BULLET_SPEED      = 600;
+
+        // Number of bees per wave
+        this.BEES_PER_WAVE     = 6;
     }
 
     create() {
@@ -20,7 +26,7 @@ class Platformer extends Phaser.Scene {
         this.groundLayer = this.map.createLayer("Ground-n-Platforms", this.tileset, 0, 0);
         this.groundLayer.setCollisionByProperty({ collides: true });
 
-        // 2) COINS (Keys)
+        // 2) Keys
         this.coinGroup = this.physics.add.staticGroup();
         const coinObjects = this.map.getObjectLayer("Objects").objects
             .filter(o => o.name === "coin" && o.gid);
@@ -28,7 +34,7 @@ class Platformer extends Phaser.Scene {
 
         // Track total number of keys and how many collected
         this.totalKeys = coinObjects.length;
-        this.keyCount = 0;
+        this.keyCount  = 0;
 
         coinObjects.forEach(o => {
             const frameIndex = o.gid - firstGid;
@@ -41,7 +47,13 @@ class Platformer extends Phaser.Scene {
             coin.setOrigin(0.5, 1);
         });
 
-        // 3) PLAYER
+        // 3) PLAY BACKGROUND MUSIC
+        if (!this.bgm) {
+            this.bgm = this.sound.add("bgm", { volume: 0.5, loop: true });
+            this.bgm.play();
+        }
+
+        // 4) PLAYER
         const spawn = this.map.findObject("Objects", o => o.name === "Spawn");
         this.my = { sprite: {}, vfx: {} };
         this.my.sprite.player = this.physics.add
@@ -62,7 +74,7 @@ class Platformer extends Phaser.Scene {
             }
         );
 
-        // 4) INPUT
+        // 5) INPUT
         this.aKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         this.dKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -73,7 +85,7 @@ class Platformer extends Phaser.Scene {
             this.physics.world.debugGraphic.clear();
         });
 
-        // 5) WALK VFX
+        // 6) WALK VFX
         this.my.vfx.walking = this.add.particles(0, 0, "kenny-particles", {
             frame:    ['smoke_03', 'smoke_09'],
             scale:    { start: 0.015, end: 0.05 },
@@ -81,7 +93,7 @@ class Platformer extends Phaser.Scene {
             alpha:    { start: 1, end: 0.1 },
         }).stop();
 
-        // 6) EXIT OBJECTS 
+        // 7) EXIT OBJECTS
         this.exitGroup = this.physics.add.staticGroup();
         const exitObjects = this.map.getObjectLayer("Objects").objects
             .filter(o => o.name === "Exit" && o.gid);
@@ -108,19 +120,100 @@ class Platformer extends Phaser.Scene {
             }
         );
 
-        // ENEMY BEES
+        // 8) ENEMY BEES
         this.beeGroup = this.physics.add.group({
             allowGravity: false,
             collideWorldBounds: true,
             bounceX: 1
         });
 
-        // Determine a vertical range for random bee spawn 
-        const minY = TILE_H * 4;
-        const maxY = spawn.y - TILE_H * 2;
+        // Spawn the initial wave of bees
+        this.spawnBees(TILE_W, TILE_H, spawn.y);
 
-        // Spawn up to 5 bees at random x-positions and random y within range
-        for (let i = 0; i < 5; i++) {
+        // Collide bees with groundLayer so they remain at chosen y
+        this.physics.add.collider(this.beeGroup, this.groundLayer);
+
+        // Overlap player with bees → restart
+        this.physics.add.overlap(
+            p,
+            this.beeGroup,
+            () => this.scene.restart()
+        );
+
+        // 9) BULLET GROUP 
+        this.bulletGroup = this.physics.add.group({
+            allowGravity: false,
+            collideWorldBounds: false
+        });
+
+        // Destroy bullet when it hits the ground
+        this.physics.add.collider(this.bulletGroup, this.groundLayer, bullet => {
+            bullet.destroy();
+        });
+
+        // Destroy bee when hit by bullet, and destroy bullet
+        this.physics.add.overlap(
+            this.bulletGroup,
+            this.beeGroup,
+            (bullet, bee) => {
+                bullet.destroy();
+                bee.destroy();
+
+                // If all bees are gone, spawn a fresh wave
+                if (this.beeGroup.countActive(true) === 0) {
+                    this.spawnBees(TILE_W, TILE_H, spawn.y);
+                }
+            }
+        );
+
+        // On mouse click, fire a bullet toward that point
+        this.input.on('pointerdown', pointer => {
+            const player  = this.my.sprite.player;
+            const startX  = player.x;
+            const startY  = player.y - player.displayHeight / 2;
+            const targetX = pointer.worldX;
+            const targetY = pointer.worldY;
+
+            // Spawn bullet at player’s position
+            const bullet = this.bulletGroup.create(startX, startY, 'bullet')
+                .setScale(0.3)
+                .setDepth(1);
+
+            // Compute direction vector
+            const dx = targetX - startX;
+            const dy = targetY - startY;
+            const mag = Math.sqrt(dx*dx + dy*dy);
+
+            // Normalize and apply speed
+            const velX = (dx / mag) * this.BULLET_SPEED;
+            const velY = (dy / mag) * this.BULLET_SPEED;
+
+            bullet.body.setVelocity(velX, velY);
+
+            // Destroy bullet once it leaves world bounds
+            bullet.body.setCollideWorldBounds(true);
+            bullet.body.onWorldBounds = true;
+            this.physics.world.on('worldbounds', body => {
+                if (body.gameObject === bullet) {
+                    bullet.destroy();
+                }
+            });
+        });
+
+        // 10) CAMERA
+        this.cameras.main
+            .setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels)
+            .startFollow(this.my.sprite.player, true, 0.25, 0.25)
+            .setDeadzone(50, 50)
+            .setZoom(this.SCALE);
+    }
+
+    // Spawns a wave of bees at random positions
+    spawnBees(TILE_W, TILE_H, spawnY) {
+        const minY = TILE_H * 4;
+        const maxY = spawnY - TILE_H * 2;
+
+        for (let i = 0; i < this.BEES_PER_WAVE; i++) {
             const bx = Phaser.Math.Between(TILE_W, this.map.widthInPixels - TILE_W);
             const by = Phaser.Math.Between(minY, maxY);
             const bee = this.beeGroup.create(bx, by, 'platformer_characters', 'tile_0024.png')
@@ -129,23 +222,6 @@ class Platformer extends Phaser.Scene {
                 .play('beeFly');
             bee.body.setVelocityX(Phaser.Math.Between(20, 40));
         }
-
-        // Collide bees with groundLayer so they remain at chosen y
-        this.physics.add.collider(this.beeGroup, this.groundLayer);
-
-        // Overlap player with bees restart
-        this.physics.add.overlap(
-            p,
-            this.beeGroup,
-            () => this.scene.restart()
-        );
-
-        // 7) CAMERA
-        this.cameras.main
-            .setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels)
-            .startFollow(this.my.sprite.player, true, 0.25, 0.25)
-            .setDeadzone(50, 50)
-            .setZoom(this.SCALE);
     }
 
     update() {
