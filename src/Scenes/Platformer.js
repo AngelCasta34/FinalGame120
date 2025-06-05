@@ -7,12 +7,12 @@ class Platformer extends Phaser.Scene {
         this.ACCELERATION      = 150;
         this.DRAG              = 5000;
         this.physics.world.gravity.y = 150;
-        this.JUMP_VELOCITY     = -500;
+        this.JUMP_VELOCITY     = -150;
         this.PARTICLE_VELOCITY = 10;
         this.SCALE             = 5;
 
         // Bullet speed (px/s)
-        this.BULLET_SPEED      = 600;
+        this.BULLET_SPEED      = 200;
 
         // Number of bees per wave
         this.BEES_PER_WAVE     = 6;
