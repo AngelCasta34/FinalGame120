@@ -6,12 +6,12 @@ class EndScene extends Phaser.Scene {
     create() {
         const { width, height } = this.scale;
         this.add.text(width/2, height/2 - 20, "You Win!", {
-            font: "48px sans-serif",
+            font: "48px Indie Flower",
             color: "#ffffff"
         }).setOrigin(0.5);
 
         this.add.text(width/2, height/2 + 20, "Press R to play again", {
-            font: "24px sans-serif",
+            font: "24px Indie Flower",
             color: "#ffff00"
         }).setOrigin(0.5);
 

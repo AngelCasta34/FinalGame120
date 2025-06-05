@@ -8,7 +8,7 @@ class Platformer extends Phaser.Scene {
         this.DRAG              = 5000;
         this.physics.world.gravity.y = 150;
         this.JUMP_VELOCITY     = -150;
-        this.PARTICLE_VELOCITY = 10;
+        this.PARTICLE_VELOCITY = 50;
         this.SCALE             = 5;
 
         // Bullet speed (px/s)
@@ -64,6 +64,7 @@ class Platformer extends Phaser.Scene {
 
         // Collide & overlap
         this.physics.add.collider(this.my.sprite.player, this.groundLayer);
+        //Key overlap
         this.physics.add.overlap(
             this.my.sprite.player,
             this.keyGroup,
