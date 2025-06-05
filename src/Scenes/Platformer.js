@@ -120,7 +120,7 @@ class Platformer extends Phaser.Scene {
         const maxY = spawn.y - TILE_H * 2;
 
         // Spawn up to 5 bees at random x-positions and random y within range
-        for (let i = 0; i < 1; i++) {
+        for (let i = 0; i < 5; i++) {
             const bx = Phaser.Math.Between(TILE_W, this.map.widthInPixels - TILE_W);
             const by = Phaser.Math.Between(minY, maxY);
             const bee = this.beeGroup.create(bx, by, 'platformer_characters', 'tile_0024.png')
