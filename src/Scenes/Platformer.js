@@ -63,7 +63,64 @@ class Platformer extends Phaser.Scene {
             .setCollideWorldBounds(true);
 
         // Collide & overlap
-        this.physics.add.collider(this.my.sprite.player, this.groundLayer);
+
+        // Checks to for conditions under which 
+        // collision detection won't run
+        let collisionProcess = (obj1, obj2) => {
+            // One way collisions
+            if (obj2.properties.oneway) {
+                return false;
+            } 
+            
+            // Invisible tiles don't affect the player
+            if (!obj2.visible) {
+                return false;
+            }
+
+            // Handle intersection with the switch
+            // Look for moving left to right (-->)
+            if (obj2.properties.switch
+                && my.sprite.player.body.acceleration.x > 0) {
+                        obj2.index = 67; // left leaning switch tile
+                        for (let tile of this.leftSwitchable) {
+                            tile.visible = true;
+                        }
+                        for (let tile of this.rightSwitchable) {
+                            tile.visible = false;
+                        }
+                        return false;
+                }
+
+            // Handle intersection with the switch
+            // Look for moving right to left (<--)
+            if (obj2.properties.switch 
+                && my.sprite.player.body.acceleration.x < 0) {
+                        obj2.index = 65; // right leaning switch tile
+                        for (let tile of this.leftSwitchable) {
+                            tile.visible = false;
+                        }
+                        for (let tile of this.rightSwitchable) {
+                            tile.visible = true;
+                        }
+                        return false;
+                }
+
+            return true;
+
+        }
+
+        // Handles collisions based on tile property values
+        let propertyCollider = (obj1, obj2) => {
+
+            // Handle intersection with dangerous tiles
+            if (obj2.properties.hazard) {
+                // Collided with a danger tile, handle collision
+                this.scene.restart();
+            }
+
+        }
+
+        this.physics.add.collider(this.my.sprite.player, this.groundLayer, propertyCollider, collisionProcess);
         //Key overlap
         this.physics.add.overlap(
             this.my.sprite.player,
