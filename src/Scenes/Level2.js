@@ -134,6 +134,7 @@ class Level2 extends Phaser.Scene {
 
             // Handle intersection with ground tiles
             if(obj2.visible){
+                this.sound.play("sfx-groundBullet");
                 obj1.destroy();
             }
 
@@ -145,6 +146,7 @@ class Level2 extends Phaser.Scene {
             //Hit blue trigger
             if (obj2.properties.hitBlue) {
                 obj1.destroy(); //Destroy Bullet
+                this.sound.play("sfx-trigger");
                 obj2.visible = false;   //Hide trigger
 
                 //Make Blue tiles visible
@@ -156,6 +158,7 @@ class Level2 extends Phaser.Scene {
             //Hit red trigger
             if (obj2.properties.hitRed) {
                 obj1.destroy(); //Destroy Bullet
+                this.sound.play("sfx-trigger");
                 obj2.visible = false;   //Hide trigger
                 
                 //Create Coins when a trigger is hit
@@ -195,6 +198,7 @@ class Level2 extends Phaser.Scene {
             //Hit black trigger
             if (obj2.properties.hitBlack) {
                 obj1.destroy(); //Destroy Bullet
+                this.sound.play("sfx-trigger");
                 obj2.visible = false;   //Hide trigger
 
                 //Make Yellow and Pink tiles visible
