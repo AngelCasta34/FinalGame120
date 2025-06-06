@@ -268,6 +268,7 @@ class Level1 extends Phaser.Scene {
             this.exitGroup,
             () => {
                 if (this.keyCount >= this.totalKeys) {
+                    betweenScore = playerScore;
                     this.scene.start("platformerScene2");
                 }
             }
@@ -297,6 +298,9 @@ class Level1 extends Phaser.Scene {
             const bullet = this.bulletGroup.create(startX, startY, 'bullet')
                 .setScale(0.05)
                 .setDepth(1);
+
+            //Play bullet sound
+            this.sound.play("sfx-bullet");
 
             // Compute direction vector
             const dx = targetX - startX;
@@ -391,7 +395,10 @@ class Level1 extends Phaser.Scene {
         my.sprite.keyIcon.y = p.y+15;
 
         // restart current scene
-        if (Phaser.Input.Keyboard.JustDown(this.rKey)) this.scene.restart();
+        if (Phaser.Input.Keyboard.JustDown(this.rKey)){
+            playerScore = 0;
+            this.scene.restart();
+        }
     }
 }
 

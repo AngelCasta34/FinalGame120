@@ -122,6 +122,9 @@ class Level2 extends Phaser.Scene {
             if (obj2.properties.hazard) {
                 // Collided with a danger tile, handle collision
                 playerScore = 0;
+                if(betweenScore > 10) {
+                    betweenScore -= 10;
+                }
                 this.scene.restart();
             }
 
@@ -298,6 +301,9 @@ class Level2 extends Phaser.Scene {
                 .setScale(0.05)
                 .setDepth(1);
 
+            //Play bullet sound
+            this.sound.play("sfx-bullet");
+
             // Compute direction vector
             const dx = targetX - startX;
             const dy = targetY - startY;
@@ -328,6 +334,7 @@ class Level2 extends Phaser.Scene {
 
         // 12) HUD elements
         //Create Score Text
+        playerScore = 0;
         this.scoreBoard = this.add.text(this.my.sprite.player.x, this.my.sprite.player.y+5, 'Score: ' + playerScore,
             { 
                fontFamily: 'Indie Flower',
@@ -381,7 +388,8 @@ class Level2 extends Phaser.Scene {
         //Score
         this.scoreBoard.x = p.x;
         this.scoreBoard.y = p.y+5;
-        this.scoreBoard.setText('Score: ' + playerScore);
+        let tempScore = playerScore + betweenScore
+        this.scoreBoard.setText('Score: ' + tempScore);
 
         //Keys
         this.keyTracker.x = p.x;
@@ -391,7 +399,13 @@ class Level2 extends Phaser.Scene {
         my.sprite.keyIcon.y = p.y+15;
 
         // restart current scene
-        if (Phaser.Input.Keyboard.JustDown(this.rKey)) this.scene.restart();
+        if (Phaser.Input.Keyboard.JustDown(this.rKey)){
+            playerScore = 0;
+            if(betweenScore > 0) {
+                betweenScore -= 10;
+            }
+            this.scene.restart();
+        }
     }
 }
 
