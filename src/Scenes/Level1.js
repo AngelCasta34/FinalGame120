@@ -70,7 +70,7 @@ class Level1 extends Phaser.Scene {
             tile.visible = false;
         }
         //Yellow Tree path
-        this.growBYellow = this.groundLayer.filterTiles((tile) => {
+        this.growYellow = this.groundLayer.filterTiles((tile) => {
             if (tile.properties.grow == "yellow") {
                 return true;
             } else {
@@ -78,7 +78,7 @@ class Level1 extends Phaser.Scene {
             }
         });
         // set to invisible -- switch will control visibility
-        for (let tile of this.growBYellow) {
+        for (let tile of this.growYellow) {
             tile.visible = false;
         }
         //Pink Tree path
@@ -123,6 +123,7 @@ class Level1 extends Phaser.Scene {
             // Handle intersection with dangerous tiles
             if (obj2.properties.hazard) {
                 // Collided with a danger tile, handle collision
+                playerScore = 0;
                 this.scene.restart();
             }
 
@@ -145,7 +146,7 @@ class Level1 extends Phaser.Scene {
                 obj1.destroy(); //Destroy Bullet
                 obj2.visible = false;   //Hide trigger
 
-                //Make tiles visible
+                //Make Blue tiles visible
                 for (let tile of this.growBlue) {
                     tile.visible = true;
                 }
@@ -155,11 +156,6 @@ class Level1 extends Phaser.Scene {
             if (obj2.properties.hitRed) {
                 obj1.destroy(); //Destroy Bullet
                 obj2.visible = false;   //Hide trigger
-
-                //Make tiles visible
-                for (let tile of this.growBlue) {
-                    tile.visible = true;
-                }
                 
                 //Create Coins when a trigger is hit
                 this.coinGroup = this.physics.add.staticGroup();
@@ -199,8 +195,11 @@ class Level1 extends Phaser.Scene {
                 obj1.destroy(); //Destroy Bullet
                 obj2.visible = false;   //Hide trigger
 
-                //Make tiles visible
-                for (let tile of this.growBlue) {
+                //Make Yellow and Pink tiles visible
+                for (let tile of this.growYellow) {
+                    tile.visible = true;
+                }
+                for (let tile of this.growPink) {
                     tile.visible = true;
                 }
             }

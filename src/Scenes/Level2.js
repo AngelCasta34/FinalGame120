@@ -6,9 +6,9 @@ class Level2 extends Phaser.Scene {
     init() {
         this.ACCELERATION      = 100;
         this.DRAG              = 5000;
-        this.physics.world.gravity.y = 150;
+        this.physics.world.gravity.y = 300;
         this.JUMP_VELOCITY     = -150;
-        this.PARTICLE_VELOCITY = 50;
+        this.PARTICLE_VELOCITY = 10;
         this.SCALE             = 5;
 
         // Bullet speed (px/s)
@@ -25,6 +25,8 @@ class Level2 extends Phaser.Scene {
         this.tileset = this.map.addTilesetImage("kenny_tilemap_packed", "tilemap_tiles");
         this.groundLayer = this.map.createLayer("Ground-n-Platforms", this.tileset, 0, 0);
         this.groundLayer.setCollisionByProperty({ collides: true });
+        this.triggerLayer = this.map.createLayer("Triggers", this.tileset, 0, 0);
+        this.triggerLayer.setCollisionByProperty({ collides: true });
 
         // 2) Keys
         this.keyGroup = this.physics.add.staticGroup();
@@ -53,7 +55,46 @@ class Level2 extends Phaser.Scene {
             this.bgm.play();
         }
 
-        // 4) PLAYER
+        // 4) Hidden Tiles
+        //Create Hidden Platforms
+        // Blue Vine and Platforms
+        this.growBlue = this.groundLayer.filterTiles((tile) => {
+            if (tile.properties.grow == "blue") {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        // set to invisible -- switch will control visibility
+        for (let tile of this.growBlue) {
+            tile.visible = false;
+        }
+        //Yellow Tree path
+        this.growYellow = this.groundLayer.filterTiles((tile) => {
+            if (tile.properties.grow == "yellow") {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        // set to invisible -- switch will control visibility
+        for (let tile of this.growYellow) {
+            tile.visible = false;
+        }
+        //Pink Tree path
+        this.growPink = this.groundLayer.filterTiles((tile) => {
+            if (tile.properties.grow == "pink") {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        // set to invisible -- switch will control visibility
+        for (let tile of this.growPink) {
+            tile.visible = false;
+        }
+
+        // 5) PLAYER
         const spawn = this.map.findObject("Objects", o => o.name === "Spawn");
         this.my = { sprite: {}, vfx: {} };
         this.my.sprite.player = this.physics.add
@@ -61,65 +102,111 @@ class Level2 extends Phaser.Scene {
             .setOrigin(0.5, 1)
             .setScale(0.5)
             .setCollideWorldBounds(true);
+    
 
-        // Collide & overlap
-
-        // Checks to for conditions under which 
-        // collision detection won't run
+        // 6) Collision & overlap
+        // Checks to for conditions under which collision detection won't run
         let collisionProcess = (obj1, obj2) => {
-            // One way collisions
-            if (obj2.properties.oneway) {
-                return false;
-            } 
-            
-            // Invisible tiles don't affect the player
+
+            // Invisible tiles don't affect the player or bullets
             if (!obj2.visible) {
                 return false;
             }
-
-            // Handle intersection with the switch
-            // Look for moving left to right (-->)
-            if (obj2.properties.switch
-                && my.sprite.player.body.acceleration.x > 0) {
-                        obj2.index = 67; // left leaning switch tile
-                        for (let tile of this.leftSwitchable) {
-                            tile.visible = true;
-                        }
-                        for (let tile of this.rightSwitchable) {
-                            tile.visible = false;
-                        }
-                        return false;
-                }
-
-            // Handle intersection with the switch
-            // Look for moving right to left (<--)
-            if (obj2.properties.switch 
-                && my.sprite.player.body.acceleration.x < 0) {
-                        obj2.index = 65; // right leaning switch tile
-                        for (let tile of this.leftSwitchable) {
-                            tile.visible = false;
-                        }
-                        for (let tile of this.rightSwitchable) {
-                            tile.visible = true;
-                        }
-                        return false;
-                }
 
             return true;
 
         }
 
-        // Handles collisions based on tile property values
+        // Handles player collisions based on tile property values
         let propertyCollider = (obj1, obj2) => {
 
             // Handle intersection with dangerous tiles
             if (obj2.properties.hazard) {
                 // Collided with a danger tile, handle collision
+                playerScore = 0;
                 this.scene.restart();
             }
 
         }
+        //Handles bullet colisions with ground
+        let propertyColliderDestroy  = (obj1, obj2) => {
 
+            // Handle intersection with ground tiles
+            if(obj2.visible){
+                obj1.destroy();
+            }
+
+        }
+        // Handles bullet collisions with triggers based on tile property values
+        let propertyColliderTriggers = (obj1, obj2) => {
+            // Handle intersection with trigger tiles
+
+            //Hit blue trigger
+            if (obj2.properties.hitBlue) {
+                obj1.destroy(); //Destroy Bullet
+                obj2.visible = false;   //Hide trigger
+
+                //Make Blue tiles visible
+                for (let tile of this.growBlue) {
+                    tile.visible = true;
+                }
+            }
+
+            //Hit red trigger
+            if (obj2.properties.hitRed) {
+                obj1.destroy(); //Destroy Bullet
+                obj2.visible = false;   //Hide trigger
+                
+                //Create Coins when a trigger is hit
+                this.coinGroup = this.physics.add.staticGroup();
+                const coinObjects = this.map.getObjectLayer("Objects").objects.filter(o => o.name === "coin" && o.gid);
+                coinObjects.forEach(o => {
+                    const frameIndex = o.gid - firstGid;
+                    this.coinGroup.create(
+                        o.x + TILE_W / 2,
+                        o.y,
+                        "tilemap_sheet",
+                        frameIndex
+                    )
+                    .setOrigin(0.5, 1);
+                });
+
+                let totalCoins = coinObjects.length;
+                let coinCount = 0;
+                
+                //Coin overlap is here so that it actually works for hidden objects
+                this.physics.add.overlap(
+                    this.my.sprite.player,
+                    this.coinGroup,
+                    (player, coin) => {
+                        coin.destroy();
+                        this.sound.play("sfx-key");
+                        playerScore += 10;
+                        coinCount++;
+                        if(coinCount >= totalCoins){
+                            playerScore += 50;
+                        }
+                    }
+                );
+            }
+
+            //Hit black trigger
+            if (obj2.properties.hitBlack) {
+                obj1.destroy(); //Destroy Bullet
+                obj2.visible = false;   //Hide trigger
+
+                //Make Yellow and Pink tiles visible
+                for (let tile of this.growYellow) {
+                    tile.visible = true;
+                }
+                for (let tile of this.growPink) {
+                    tile.visible = true;
+                }
+            }
+
+        }
+        
+        //Player and ground colider
         this.physics.add.collider(this.my.sprite.player, this.groundLayer, propertyCollider, collisionProcess);
         //Key overlap
         this.physics.add.overlap(
@@ -132,7 +219,7 @@ class Level2 extends Phaser.Scene {
             }
         );
 
-        // 5) INPUT
+        // 7) INPUT
         this.aKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         this.dKey     = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -143,7 +230,7 @@ class Level2 extends Phaser.Scene {
             this.physics.world.debugGraphic.clear();
         });
 
-        // 6) WALK VFX
+        // 8) WALK VFX
         this.my.vfx.walking = this.add.particles(0, 0, "kenny-particles", {
             frame:    ['smoke_03', 'smoke_09'],
             scale:    { start: 0.015, end: 0.05 },
@@ -151,7 +238,7 @@ class Level2 extends Phaser.Scene {
             alpha:    { start: 1, end: 0.1 },
         }).stop();
 
-        // 7) EXIT OBJECTS
+        // 9) EXIT OBJECTS
         this.exitGroup = this.physics.add.staticGroup();
         const exitObjects = this.map.getObjectLayer("Objects").objects
             .filter(o => o.name === "Exit" && o.gid);
@@ -173,56 +260,22 @@ class Level2 extends Phaser.Scene {
             this.exitGroup,
             () => {
                 if (this.keyCount >= this.totalKeys) {
-                    this.scene.start("endScene");
+                    this.scene.start("platformerScene2");
                 }
             }
         );
-/*
-        // 8) ENEMY BEES
-        this.beeGroup = this.physics.add.group({
-            allowGravity: false,
-            collideWorldBounds: true,
-            bounceX: 1
-        });
 
-        // Spawn the initial wave of bees
-        this.spawnBees(TILE_W, TILE_H, spawn.y);
-
-        // Collide bees with groundLayer so they remain at chosen y
-        this.physics.add.collider(this.beeGroup, this.groundLayer);
-
-        // Overlap player with bees → restart
-        this.physics.add.overlap(
-            p,
-            this.beeGroup,
-            () => this.scene.restart()
-        );
-*/
-        // 9) BULLET GROUP 
+        // 10) BULLET GROUP 
         this.bulletGroup = this.physics.add.group({
             allowGravity: false,
             collideWorldBounds: false
         });
 
         // Destroy bullet when it hits the ground
-        this.physics.add.collider(this.bulletGroup, this.groundLayer, bullet => {
-            bullet.destroy();
-        });
+        this.physics.add.collider(this.bulletGroup, this.groundLayer, propertyColliderDestroy, collisionProcess);
 
-        // Destroy bee when hit by bullet, and destroy bullet
-        this.physics.add.overlap(
-            this.bulletGroup,
-            this.beeGroup,
-            (bullet, bee) => {
-                bullet.destroy();
-                bee.destroy();
-
-                // If all bees are gone, spawn a fresh wave
-                if (this.beeGroup.countActive(true) === 0) {
-                    this.spawnBees(TILE_W, TILE_H, spawn.y);
-                }
-            }
-        );
+        //Collision with Bullet and Environment
+        this.physics.add.collider(this.bulletGroup, this.triggerLayer, propertyColliderTriggers, collisionProcess);
 
         // On mouse click, fire a bullet toward that point
         this.input.on('pointerdown', pointer => {
@@ -258,30 +311,30 @@ class Level2 extends Phaser.Scene {
             });
         });
 
-        // 10) CAMERA
+        // 11) CAMERA
         this.cameras.main
             .setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels)
             .startFollow(this.my.sprite.player, true, 0.25, 0.25)
             .setDeadzone(50, 50)
             .setZoom(this.SCALE);
-    }
-/*
-    // Spawns a wave of bees at random positions
-    spawnBees(TILE_W, TILE_H, spawnY) {
-        const minY = TILE_H * 4;
-        const maxY = spawnY - TILE_H * 2;
 
-        for (let i = 0; i < this.BEES_PER_WAVE; i++) {
-            const bx = Phaser.Math.Between(TILE_W, this.map.widthInPixels - TILE_W);
-            const by = Phaser.Math.Between(minY, maxY);
-            const bee = this.beeGroup.create(bx, by, 'platformer_characters', 'tile_0024.png')
-                .setOrigin(0.5, 1)
-                .setScale(0.5)
-                .play('beeFly');
-            bee.body.setVelocityX(Phaser.Math.Between(20, 40));
-        }
+        // 12) HUD elements
+        //Create Score Text
+        this.scoreBoard = this.add.text(this.my.sprite.player.x, this.my.sprite.player.y+5, 'Score: ' + playerScore,
+            { 
+               fontFamily: 'Indie Flower',
+               fontSize: '12px',
+            }).setOrigin(0.5);
+
+        this.keyTracker = this.add.text(this.my.sprite.player.x, this.my.sprite.player.y+15, this.keyCount + '/' + this.totalKeys,
+            { 
+               fontFamily: 'Indie Flower',
+               fontSize: '12px',
+            }).setOrigin(0.5);
+        my.sprite.keyIcon = this.add.sprite(this.my.sprite.player.x-15, this.my.sprite.player.y+15, "key");
+        my.sprite.keyIcon.setScale(1);
     }
-*/
+
     update() {
         const p   = this.my.sprite.player;
         const vfx = this.my.vfx.walking;
@@ -315,6 +368,19 @@ class Level2 extends Phaser.Scene {
         if (p.body.blocked.down && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
             p.body.setVelocityY(this.JUMP_VELOCITY);
         }
+
+        //Update HUD elements
+        //Score
+        this.scoreBoard.x = p.x;
+        this.scoreBoard.y = p.y+5;
+        this.scoreBoard.setText('Score: ' + playerScore);
+
+        //Keys
+        this.keyTracker.x = p.x;
+        this.keyTracker.y = p.y+15;
+        this.keyTracker.setText(this.keyCount + '/' + this.totalKeys);
+        my.sprite.keyIcon.x = p.x-15;
+        my.sprite.keyIcon.y = p.y+15;
 
         // restart current scene
         if (Phaser.Input.Keyboard.JustDown(this.rKey)) this.scene.restart();
