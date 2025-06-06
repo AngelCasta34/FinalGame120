@@ -73,7 +73,7 @@ class Load extends Phaser.Scene {
             repeat: -1
         });
 
-        this.scene.start("platformerScene");
+        this.scene.start("platformerScene1");
     }
 
     // Never get here since a new scene is started in create()

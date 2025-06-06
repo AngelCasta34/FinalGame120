@@ -16,7 +16,7 @@ class EndScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         this.input.keyboard.on("keydown-R", () => {
-            this.scene.start("platformerScene");
+            this.scene.start("platformerScene1");
         });
     }
 }
