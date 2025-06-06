@@ -6,9 +6,9 @@ class Level1 extends Phaser.Scene {
     init() {
         this.ACCELERATION      = 100;
         this.DRAG              = 5000;
-        this.physics.world.gravity.y = 150;
+        this.physics.world.gravity.y = 300;
         this.JUMP_VELOCITY     = -150;
-        this.PARTICLE_VELOCITY = 50;
+        this.PARTICLE_VELOCITY = 10;
         this.SCALE             = 5;
 
         // Bullet speed (px/s)
@@ -25,6 +25,8 @@ class Level1 extends Phaser.Scene {
         this.tileset = this.map.addTilesetImage("kenny_tilemap_packed", "tilemap_tiles");
         this.groundLayer = this.map.createLayer("Ground-n-Platforms", this.tileset, 0, 0);
         this.groundLayer.setCollisionByProperty({ collides: true });
+        this.triggerLayer = this.map.createLayer("Triggers", this.tileset, 0, 0);
+        this.triggerLayer.setCollisionByProperty({ collides: true });
 
         // 2) Keys
         this.keyGroup = this.physics.add.staticGroup();
@@ -62,6 +64,21 @@ class Level1 extends Phaser.Scene {
             .setScale(0.5)
             .setCollideWorldBounds(true);
 
+        //Create Hidden Platforms
+        // Blue Vine
+        this.growBlue = this.groundLayer.filterTiles((tile) => {
+            if (tile.properties.grow == "blue") {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        // set to invisible -- switch will control visibility
+        for (let tile of this.growBlue) {
+            tile.visible = false;
+        }
+
+    
         // Collide & overlap
 
         // Checks to for conditions under which 
@@ -77,34 +94,6 @@ class Level1 extends Phaser.Scene {
                 return false;
             }
 
-            // Handle intersection with the switch
-            // Look for moving left to right (-->)
-            if (obj2.properties.switch
-                && my.sprite.player.body.acceleration.x > 0) {
-                        obj2.index = 67; // left leaning switch tile
-                        for (let tile of this.leftSwitchable) {
-                            tile.visible = true;
-                        }
-                        for (let tile of this.rightSwitchable) {
-                            tile.visible = false;
-                        }
-                        return false;
-                }
-
-            // Handle intersection with the switch
-            // Look for moving right to left (<--)
-            if (obj2.properties.switch 
-                && my.sprite.player.body.acceleration.x < 0) {
-                        obj2.index = 65; // right leaning switch tile
-                        for (let tile of this.leftSwitchable) {
-                            tile.visible = false;
-                        }
-                        for (let tile of this.rightSwitchable) {
-                            tile.visible = true;
-                        }
-                        return false;
-                }
-
             return true;
 
         }
@@ -119,7 +108,23 @@ class Level1 extends Phaser.Scene {
             }
 
         }
+        // Handles collisions based on tile property values
+        let propertyColliderTriggers = (obj1, obj2) => {
 
+            // Handle intersection with dangerous tiles
+            if (obj2.properties.hitBlue) {
+                // Collided with a blueTrigger tile, handle collision
+                obj1.destroy(); //Destryo Bullet
+                obj2.visible = false;   //Hide trigger
+
+                //Make tiles visible
+                for (let tile of this.growBlue) {
+                    tile.visible = true;
+                }
+            }
+
+        }
+        
         this.physics.add.collider(this.my.sprite.player, this.groundLayer, propertyCollider, collisionProcess);
         //Key overlap
         this.physics.add.overlap(
@@ -223,6 +228,8 @@ class Level1 extends Phaser.Scene {
                 }
             }
         );
+
+        this.physics.add.collider(this.bulletGroup, this.triggerLayer, propertyColliderTriggers, collisionProcess);
 
         // On mouse click, fire a bullet toward that point
         this.input.on('pointerdown', pointer => {
