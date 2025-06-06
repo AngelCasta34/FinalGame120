@@ -17,6 +17,7 @@ let config = {
             }
         }
     },
+    backgroundColor: ('rgb(161, 178, 255)'),
     width: 1400,
     height: 800,
     scene: [StartMenu, Load, Level1, Level2, EndScene ]
@@ -25,5 +26,9 @@ let config = {
 var cursors;
 const SCALE = 2.0;
 var my = {sprite: {}, text: {}, vfx: {}};
+
+//Global Variables for player score
+let playerScore = 0;
+let highScore = 0;
 
 const game = new Phaser.Game(config);

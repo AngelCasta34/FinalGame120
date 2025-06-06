@@ -29,6 +29,9 @@ class Load extends Phaser.Scene {
 
         // Bullet image for mouse shooting
         this.load.image("bullet", "shot_grey_large.png");
+
+        //Key image for scoreboard purposes
+        this.load.image("key", "tile_0066.png");
     }
 
     create() {
