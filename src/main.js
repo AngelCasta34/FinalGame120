@@ -29,6 +29,10 @@ var my = {sprite: {}, text: {}, vfx: {}};
 
 //Global Variables for player score
 let playerScore = 0;
+let betweenScore = 0;
 let highScore = 0;
+
+//Music Variable
+let bgm;
 
 const game = new Phaser.Game(config);

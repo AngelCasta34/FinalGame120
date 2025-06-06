@@ -18,6 +18,11 @@ class StartMenu extends Phaser.Scene {
         this.input.keyboard.on("keydown-S", () => {
             this.scene.start("platformerScene1");
         });
+
+        if (!bgm) {
+            bgm = this.sound.add("bgm", { volume: 0.5, loop: true });
+            bgm.play();
+        }
     }
 }
 

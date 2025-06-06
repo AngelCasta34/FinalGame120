@@ -50,9 +50,9 @@ class Level2 extends Phaser.Scene {
         });
 
         // 3) PLAY BACKGROUND MUSIC
-        if (!this.bgm) {
-            this.bgm = this.sound.add("bgm", { volume: 0.5, loop: true });
-            this.bgm.play();
+        if (!bgm) {
+            bgm = this.sound.add("bgm", { volume: 0.5, loop: true });
+            bgm.play();
         }
 
         // 4) Hidden Tiles
