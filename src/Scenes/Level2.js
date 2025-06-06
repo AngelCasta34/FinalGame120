@@ -21,7 +21,7 @@ class Level2 extends Phaser.Scene {
     create() {
         // 1) TILEMAP + GROUND
         const TILE_W = 9, TILE_H = 9;
-        this.map = this.add.tilemap("platformer-level-1", TILE_W, TILE_H, 45, 25);
+        this.map = this.add.tilemap("platformer-level-2", TILE_W, TILE_H, 75, 35);
         this.tileset = this.map.addTilesetImage("kenny_tilemap_packed", "tilemap_tiles");
         this.groundLayer = this.map.createLayer("Ground-n-Platforms", this.tileset, 0, 0);
         this.groundLayer.setCollisionByProperty({ collides: true });

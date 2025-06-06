@@ -20,7 +20,7 @@ let config = {
     backgroundColor: ('rgb(161, 178, 255)'),
     width: 1400,
     height: 800,
-    scene: [StartMenu, Load, Level1, Level2, EndScene ]
+    scene: [Load, StartMenu, Level1, Level2, EndScene ]
 }
 
 var cursors;

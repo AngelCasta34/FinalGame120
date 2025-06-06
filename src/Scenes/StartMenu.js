@@ -16,7 +16,7 @@ class StartMenu extends Phaser.Scene {
         }).setOrigin(0.5);
 
         this.input.keyboard.on("keydown-S", () => {
-            this.scene.start("loadScene");
+            this.scene.start("platformerScene1");
         });
     }
 }

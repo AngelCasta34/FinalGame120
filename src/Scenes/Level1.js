@@ -95,7 +95,7 @@ class Level1 extends Phaser.Scene {
         }
 
         // 5) PLAYER
-        const spawn = this.map.findObject("Objects", o => o.name === "Spawn");
+        let spawn = this.map.findObject("Objects", o => o.name === "Spawn");
         this.my = { sprite: {}, vfx: {} };
         this.my.sprite.player = this.physics.add
             .sprite(spawn.x, spawn.y, "platformer_characters", "tile_0000.png")
@@ -259,9 +259,9 @@ class Level1 extends Phaser.Scene {
             p,
             this.exitGroup,
             () => {
-                if (this.keyCount >= this.totalKeys) {
+                //if (this.keyCount >= this.totalKeys) {
                     this.scene.start("platformerScene2");
-                }
+                //}
             }
         );
 
