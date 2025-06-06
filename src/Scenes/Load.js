@@ -26,10 +26,10 @@ class Load extends Phaser.Scene {
         this.load.audio("sfx-key", "forceField_000.ogg");
 
         // Background music
-        this.load.audio("bgm", "ominous-8-bit-arcade-drums.mp3");
+        this.load.audio("bgm", "menu-music-251877.mp3");
 
         // Bullet image for mouse shooting
-        this.load.image("bullet", "shot_grey_large.png");
+        this.load.image("bullet", "ballBlue_09.png");
 
         //Key image for scoreboard purposes
         this.load.image("key", "tile_0066.png");
@@ -64,17 +64,6 @@ class Load extends Phaser.Scene {
             frames: [
                 { frame: "tile_0001.png" }
             ],
-        });
-
-        this.anims.create({
-            key: 'beeFly',
-            frames: [
-                { key: 'platformer_characters', frame: 'tile_0024.png' },
-                { key: 'platformer_characters', frame: 'tile_0025.png' },
-                { key: 'platformer_characters', frame: 'tile_0026.png' }
-            ],
-            frameRate: 8,
-            repeat: -1
         });
 
         this.scene.start("startMenu");

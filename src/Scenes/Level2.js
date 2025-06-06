@@ -14,8 +14,6 @@ class Level2 extends Phaser.Scene {
         // Bullet speed (px/s)
         this.BULLET_SPEED      = 200;
 
-        // Number of bees per wave
-        this.BEES_PER_WAVE     = 6;
     }
 
     create() {
@@ -181,6 +179,7 @@ class Level2 extends Phaser.Scene {
                     (player, coin) => {
                         coin.destroy();
                         this.sound.play("sfx-key");
+                        my.vfx.coin.emitParticleAt(this.my.sprite.player.x, this.my.sprite.player.y, 1);
                         playerScore += 10;
                         coinCount++;
                         if(coinCount >= totalCoins){
@@ -208,6 +207,14 @@ class Level2 extends Phaser.Scene {
         
         //Player and ground colider
         this.physics.add.collider(this.my.sprite.player, this.groundLayer, propertyCollider, collisionProcess);
+
+        my.vfx.coin = this.add.particles(0, 0, "kenny-particles", {
+            frame: ['twirl_01.png', 'twirl_02.png', 'twirl_03.png'],
+            lifespan: 120,
+            scale: {start: 0.03, end: 0.06},
+        });
+
+        my.vfx.coin.stop();
         //Key overlap
         this.physics.add.overlap(
             this.my.sprite.player,
@@ -215,6 +222,7 @@ class Level2 extends Phaser.Scene {
             (player, key) => {
                 key.destroy();
                 this.sound.play("sfx-key");
+                my.vfx.coin.emitParticleAt(this.my.sprite.player.x, this.my.sprite.player.y, 1);
                 this.keyCount++;
             }
         );
@@ -233,8 +241,8 @@ class Level2 extends Phaser.Scene {
         // 8) WALK VFX
         this.my.vfx.walking = this.add.particles(0, 0, "kenny-particles", {
             frame:    ['smoke_03', 'smoke_09'],
-            scale:    { start: 0.015, end: 0.05 },
-            lifespan: 350,
+            scale:    { start: 0.015, end: 0.02 },
+            lifespan: 150,
             alpha:    { start: 1, end: 0.1 },
         }).stop();
 
@@ -287,7 +295,7 @@ class Level2 extends Phaser.Scene {
 
             // Spawn bullet at player’s position
             const bullet = this.bulletGroup.create(startX, startY, 'bullet')
-                .setScale(0.3)
+                .setScale(0.05)
                 .setDepth(1);
 
             // Compute direction vector

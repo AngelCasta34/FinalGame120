@@ -1,3 +1,7 @@
+//Aaron Mai and Angel Castaneda
+//Music by SergeQuadrado
+//SFX and Assets from Kenny Assets
+
 "use strict"
 
 // game config
