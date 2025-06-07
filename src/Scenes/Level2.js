@@ -281,7 +281,7 @@ class Level2 extends Phaser.Scene {
             this.exitGroup,
             () => {
                 if (this.keyCount >= this.totalKeys) {
-                    this.scene.start("platformerScene2");
+                    this.scene.start("endScene");
                 }
             }
         );

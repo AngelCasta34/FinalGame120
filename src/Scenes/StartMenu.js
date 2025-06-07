@@ -5,13 +5,24 @@ class StartMenu extends Phaser.Scene {
 
     create() {
         const { width, height } = this.scale;
-        this.add.text(width/2, height/2 - 20, "In Bloom", {
-            font: "48px Indie Flower",
+
+        this.add.text(width/2, height/2 - 140, "HIGH SCORE: " + highScore, {
+            font: "96px Indie Flower",
             color: "#ffffff"
         }).setOrigin(0.5);
 
-        this.add.text(width/2, height/2 + 20, "Press S to Start Game", {
+        this.add.text(width/2, height/2 - 20, "In Bloom", {
+            font: "72px Indie Flower",
+            color: "#ffffff"
+        }).setOrigin(0.5);
+
+        this.add.text(width/2, height/2 + 100, "Press S to Start Game", {
             font: "24px Indie Flower",
+            color: "#ffff00"
+        }).setOrigin(0.5);
+
+        this.add.text(width/2, height/2 + 20, "Regrow your victory!", {
+            font: "30px Indie Flower",
             color: "#ffff00"
         }).setOrigin(0.5);
 
