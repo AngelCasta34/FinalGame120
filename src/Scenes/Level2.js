@@ -121,11 +121,10 @@ class Level2 extends Phaser.Scene {
             // Handle intersection with dangerous tiles
             if (obj2.properties.hazard) {
                 // Collided with a danger tile, handle collision
-                playerScore = 0;
-                if(betweenScore > 10) {
-                    betweenScore -= 10;
-                }
                 if(obj1.visible){
+                    if(betweenScore > 10) {
+                        betweenScore -= 10;
+                    }
                     obj1.visible = false;
                     this.sound.play("sfx-die");
                     playerScore = 0;
@@ -191,7 +190,7 @@ class Level2 extends Phaser.Scene {
                     this.coinGroup,
                     (player, coin) => {
                         coin.destroy();
-                        this.sound.play("sfx-key");
+                        this.sound.play("sfx-coin");
                         my.vfx.coin.emitParticleAt(this.my.sprite.player.x, this.my.sprite.player.y, 1);
                         playerScore += 10;
                         coinCount++;
@@ -415,6 +414,7 @@ class Level2 extends Phaser.Scene {
             if(betweenScore > 0) {
                 betweenScore -= 10;
             }
+            this.sound.play("sfx-die");
             this.scene.restart();
         }
     }

@@ -99,7 +99,6 @@
         {
          "draworder":"topdown",
          "id":3,
-         "locked":true,
          "name":"Objects",
          "objects":[
                 {
@@ -137,18 +136,6 @@
                  "width":9,
                  "x":216.083333333333,
                  "y":217
-                }, 
-                {
-                 "gid":84,
-                 "height":9,
-                 "id":5,
-                 "name":"coin",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":9,
-                 "x":135.166666666667,
-                 "y":207.416666666667
                 }, 
                 {
                  "gid":111,

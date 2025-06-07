@@ -187,7 +187,7 @@ class Level1 extends Phaser.Scene {
                     this.coinGroup,
                     (player, coin) => {
                         coin.destroy();
-                        this.sound.play("sfx-key");
+                        this.sound.play("sfx-coin");
                         my.vfx.coin.emitParticleAt(this.my.sprite.player.x, this.my.sprite.player.y, 1);
                         playerScore += 10;
                         coinCount++;
@@ -406,6 +406,7 @@ class Level1 extends Phaser.Scene {
         // restart current scene
         if (Phaser.Input.Keyboard.JustDown(this.rKey)){
             playerScore = 0;
+            this.sound.play("sfx-die");
             this.scene.restart();
         }
     }
