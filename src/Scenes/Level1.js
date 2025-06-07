@@ -121,8 +121,14 @@ class Level1 extends Phaser.Scene {
             // Handle intersection with dangerous tiles
             if (obj2.properties.hazard) {
                 // Collided with a danger tile, handle collision
-                playerScore = 0;
-                this.scene.restart();
+                if(obj1.visible){
+                    obj1.visible = false;
+                    this.sound.play("sfx-die");
+                    playerScore = 0;
+                    setTimeout(() => {
+                        this.scene.restart();
+                    }, 300);
+                }
             }
 
         }
@@ -359,7 +365,6 @@ class Level1 extends Phaser.Scene {
         if (this.aKey.isDown) {
             p.setAccelerationX(-this.ACCELERATION);
             p.resetFlip();
-            p.anims.play('walk', true);
             vfx.startFollow(p, (p.displayWidth / 2) - 5, p.displayHeight / 2 - 5);
             vfx.setParticleSpeed(this.PARTICLE_VELOCITY, 0);
             if (p.body.blocked.down) vfx.start();

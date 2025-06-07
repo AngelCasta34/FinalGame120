@@ -24,10 +24,13 @@ class Load extends Phaser.Scene {
 
         // Sound effects
         this.load.audio("sfx-key", "forceField_000.ogg");
+
         this.load.audio("sfx-bullet", "drop_004.ogg");
         this.load.audio("sfx-trigger", "select_006.ogg");
         this.load.audio("sfx-groundBullet", "impactSoft_heavy_000.ogg");
 
+        this.load.audio("sfx-die", "error_006.ogg");
+        
         // Background music
         this.load.audio("bgm", "menu-music-251877.mp3");
 

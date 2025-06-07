@@ -125,7 +125,14 @@ class Level2 extends Phaser.Scene {
                 if(betweenScore > 10) {
                     betweenScore -= 10;
                 }
-                this.scene.restart();
+                if(obj1.visible){
+                    obj1.visible = false;
+                    this.sound.play("sfx-die");
+                    playerScore = 0;
+                    setTimeout(() => {
+                        this.scene.restart();
+                    }, 300);
+                }
             }
 
         }
